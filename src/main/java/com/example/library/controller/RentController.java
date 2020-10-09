@@ -56,9 +56,26 @@ public class RentController {
 
         List<Rent> existingRents = rentService.getAllItems();
 
+        List<Rent> borrowed = rentRepository.findByUser(userOptional);
+        int rentLimit = 3;
+        int rentCount = 0;
+        int rentBooksLimit = 5;
+        int counter = 0;
+
+        for (Rent rent : borrowed){
+            if(rent.getRentEnd() == null) {
+                counter++;
+            }
+        }
+        if(counter >= rentBooksLimit){
+            return new ResponseEntity<>(new Rent(), HttpStatus.OK);
+        }
         for (Rent rent : existingRents) {
             if (rent.getBook().getId() == rentBody.getBookId() && rent.getRentEnd() == null) {
-                return new ResponseEntity<>(new Rent(), HttpStatus.OK);
+                rentCount++;
+                if (rentCount >= rentLimit) {
+                    return new ResponseEntity<>(new Rent(), HttpStatus.OK);
+                }
             }
         }
 
